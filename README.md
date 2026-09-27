@@ -18,7 +18,9 @@ pip install -r requirements.txt
 uvicorn app.main:app --reload
 ```
 
+### Utilize o Swagger
 Abra http://127.0.0.1:8000/docs para testar pelo Swagger. Os dados ficam em memória e são perdidos ao reiniciar; execute com um único processo.
+
 
 | Rotas | Métodos |
 |---|---|
