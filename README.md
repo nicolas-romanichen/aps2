@@ -1,35 +1,44 @@
 # APS 2 — Eventos acadêmicos
 
-Projeto da APS 2 da matéria de Desenvolvimento Backend: uma API para um site de eventos acadêmicos.
+API FastAPI para eventos, participantes e inscrições. Camadas: `routers` (HTTP), `services` (regras), `repositories` (dados) e `models` (Pydantic).
 
-## Organização do código
 
-O projeto utiliza arquitetura em camadas. Cada parte fica em um módulo próprio dentro de `app/`:
-
-```text
-.
-├── app/
-│   ├── main.py
-│   ├── models/
-│   ├── repositories/
-│   ├── services/
-│   └── routers/
-└── README.md
+```sh
+python3 -m venv venv
+. venv/bin/activate
+pip install -r requirements.txt
+uvicorn app.main:app --reload
 ```
 
-- **`app/models`**: define os formatos dos dados e as regras de validação, por exemplo os campos obrigatórios de um evento. Com Pydantic, esses modelos também validam os dados recebidos pela API.
-- **`app/repositories`**: lê e grava dados. É a camada que conversa com a fonte de dados (por exemplo, banco de dados); não deve decidir regras do negócio nem conhecer detalhes HTTP.
-- **`app/services`**: implementa as regras do negócio e coordena as operações necessárias. Por exemplo, verifica se um evento pode ser criado e chama o repositório para salvá-lo.
-- **`app/routers`**: declara os endpoints e métodos HTTP (`GET`, `POST`, `PUT`/`PATCH`, `DELETE`), recebe parâmetros e corpos das requisições, chama os serviços e define as respostas HTTP.
-- **`app/main.py`**: cria a aplicação FastAPI e registra os routers. Deve ser o ponto de entrada, sem concentrar ali a lógica das funcionalidades.
+Abra http://127.0.0.1:8000/docs para testar pelo Swagger. Os dados ficam em memória e são perdidos ao reiniciar; execute com um único processo.
 
-O fluxo normal de uma requisição é:
+| Rotas | Métodos |
+|---|---|
+| `/eventos`, `/participantes` | POST (cadastrar), GET (listar) |
+| `/eventos/{id}`, `/participantes/{id}` | GET (consultar), PUT (substituir), DELETE (excluir) |
+| `/eventos/{evento_id}/inscricoes/{participante_id}` | POST (inscrever) |
+| `/eventos/{evento_id}/inscricoes` | GET (listar participantes inscritos) |
 
-```text
-cliente → router → service → repository → fonte de dados
-                         ← resultado ←
+Exemplo de corpo para `POST /eventos`:
+
+```json
+{"titulo":"Python","descricao":"Minicurso introdutório","data":"2026-11-20","horario":"14:00:00","local":"Lab 1","capacidade":20,"categoria":"Minicurso"}
 ```
 
-Exemplo para a funcionalidade de eventos: o router recebe `POST /eventos`, o service aplica as regras de criação, o repository persiste o evento e o router devolve a resposta HTTP. A validação do formato dos dados fica no model.
+Resposta `201`: o mesmo objeto com `"id": 1`. Para `POST /participantes`:
 
-> No início, `app/main.py` está na raiz e vazio. Ao adotar essa estrutura, mova o ponto de entrada para `app/main.py` e inicie a aplicação por esse módulo. Os nomes e a divisão podem ser ajustados conforme os requisitos da APS.
+```json
+{"nome":"Ana","email":"ana@example.com","curso":"Computação"}
+```
+
+Com os IDs retornados, `POST /eventos/1/inscricoes/1` (sem corpo) responde `201`:
+
+```json
+{"evento_id":1,"participante_id":1}
+```
+
+Consultas e atualizações retornam `200`; exclusões, `204` sem corpo. Erros: `404` para recurso inexistente, `400` para inscrição repetida/falta de vagas/capacidade abaixo dos inscritos e `422` para dados inválidos. Exemplo de erro:
+
+```json
+{"detail":"Evento não encontrado."}
+```
