@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Response
+from fastapi import APIRouter
 
 from app.dependencies import evento_service
 from app.models.evento_model import Evento, EventoEntrada
@@ -22,7 +22,11 @@ async def buscar_evento(id: int):
 async def atualizar_evento(id: int, dados: EventoEntrada):
     return evento_service.atualizar(id, dados)
 
-@router.delete("/{id}", status_code=204)
+@router.delete("/{id}", status_code=200)
 async def remover_evento(id: int):
     evento_service.remover(id)
-    return Response(status_code=204)
+    return {
+        "codigo": 200,
+        "mensagem": f"Evento {id} removido com sucesso"
+    }
+

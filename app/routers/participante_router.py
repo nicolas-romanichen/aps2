@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Response
+from fastapi import APIRouter
 
 from app.dependencies import participante_service
 from app.models.participante_model import Participante, ParticipanteEntrada
@@ -22,7 +22,10 @@ async def buscar_participante(id: int):
 async def atualizar_participante(id: int, dados: ParticipanteEntrada):
     return participante_service.atualizar(id, dados)
 
-@router.delete("/{id}", status_code=204)
+@router.delete("/{id}", status_code=200)
 async def remover_participante(id: int):
     participante_service.remover(id)
-    return Response(status_code=204)
+    return {
+        "codigo": 200,
+        "mensagem": f"Participante {id} removido com sucesso"
+    }
