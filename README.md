@@ -2,17 +2,16 @@
 
 API FastAPI para eventos, participantes e inscrições. Camadas: `routers` (HTTP), `services` (regras), `repositories` (dados) e `models` (Pydantic).
 
-
+### LINUX
 ```sh
-LINUX
 python3 -m venv venv
 . venv/bin/activate
 pip install -r requirements.txt
 uvicorn app.main:app --reload
 ```
 
+### WINDOWS
 ```sh
-WINDOWS
 python -m venv venv
 venv\Scripts\activate
 pip install -r requirements.txt
