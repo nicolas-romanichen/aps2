@@ -1,5 +1,5 @@
-from app.models.inscricao_model import Inscricao
-from app.models.participante_model import Participante
+from app.schemas.inscricao_schema import Inscricao
+from app.schemas.participante_schema import Participante
 from app.repositories.inscricao_repository import InscricaoRepository
 from app.services.erros import RegraNegocioError
 from app.services.evento_service import EventoService
@@ -28,7 +28,4 @@ class InscricaoService:
 
     def listar(self, evento_id: int) -> list[Participante]:
         self.eventos.buscar(evento_id)
-        return [
-            self.participantes.buscar(inscricao.participante_id)
-            for inscricao in self.repository.listar_por_evento(evento_id)
-        ]
+        return self.repository.listar_participantes(evento_id)

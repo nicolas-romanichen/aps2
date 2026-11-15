@@ -1,4 +1,4 @@
-from app.models.evento_model import Evento, EventoEntrada
+from app.schemas.evento_schema import Evento, EventoEntrada
 from app.repositories.evento_repository import EventoRepository
 from app.repositories.inscricao_repository import InscricaoRepository
 from app.services.erros import NaoEncontradoError, RegraNegocioError

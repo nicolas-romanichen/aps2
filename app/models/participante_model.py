@@ -1,11 +1,10 @@
-from pydantic import BaseModel, ConfigDict, EmailStr, Field
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+from database.db import Base
 
-class ParticipanteEntrada(BaseModel):
-    model_config = ConfigDict(str_strip_whitespace=True)
-
-    nome: str = Field(min_length=1)
-    email: EmailStr
-    curso: str
-
-class Participante(ParticipanteEntrada):
-    id: int
+class Participante(Base):
+    __tablename__ = "participantes"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    nome: Mapped[str]
+    email: Mapped[str] = mapped_column(unique=True)
+    curso: Mapped[str]
+    inscricoes: Mapped[list["Inscricao"]] = relationship(back_populates="participante", cascade="all, delete-orphan", passive_deletes=True)

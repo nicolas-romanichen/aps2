@@ -1,29 +1,29 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 
-from app.dependencies import evento_service
-from app.models.evento_model import Evento, EventoEntrada
+from app.dependencies import get_evento_service
+from app.schemas.evento_schema import Evento, EventoEntrada
 
 
 router = APIRouter(prefix="/eventos", tags=["Eventos"])
 
 @router.post("", response_model=Evento, status_code=201)
-async def criar_evento(dados: EventoEntrada):
+def criar_evento(dados: EventoEntrada, evento_service=Depends(get_evento_service)):
     return evento_service.criar(dados)
 
 @router.get("", response_model=list[Evento])
-async def listar_eventos():
+def listar_eventos(evento_service=Depends(get_evento_service)):
     return evento_service.listar()
 
 @router.get("/{id}", response_model=Evento)
-async def buscar_evento(id: int):
+def buscar_evento(id: int, evento_service=Depends(get_evento_service)):
     return evento_service.buscar(id)
 
 @router.put("/{id}", response_model=Evento)
-async def atualizar_evento(id: int, dados: EventoEntrada):
+def atualizar_evento(id: int, dados: EventoEntrada, evento_service=Depends(get_evento_service)):
     return evento_service.atualizar(id, dados)
 
 @router.delete("/{id}", status_code=200)
-async def remover_evento(id: int):
+def remover_evento(id: int, evento_service=Depends(get_evento_service)):
     evento_service.remover(id)
     return {
         "codigo": 200,
