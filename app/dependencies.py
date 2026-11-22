@@ -1,4 +1,9 @@
-from fastapi import Depends
+from fastapi import Depends, HTTPException, Request
+from fastapi.security import HTTPBearer
+from jwt import InvalidTokenError
+from app.repositories.usuario_repository import UsuarioRepository
+from app.services.usuario_service import UsuarioService
+from app.security import identificar_token
 from database.db import get_db
 from app.repositories.evento_repository import EventoRepository
 from app.repositories.inscricao_repository import InscricaoRepository
@@ -21,3 +26,30 @@ def get_inscricao_service(session=Depends(get_db, scope="function")):
 
 def get_relatorio_service(session=Depends(get_db, scope="function")):
     return RelatorioService(RelatorioRepository(session))
+
+
+def get_usuario_service(session=Depends(get_db, scope="function")):
+    return UsuarioService(UsuarioRepository(session))
+
+
+bearer = HTTPBearer(auto_error=False, bearerFormat="JWT")
+
+
+def usuario_atual(request: Request, credencial=Depends(bearer), session=Depends(get_db, scope="function")):
+    erro = HTTPException(401, "Não foi possível validar as credenciais.", headers={"WWW-Authenticate": "Bearer"})
+    if credencial is None:
+        raise erro
+    try:
+        usuario_id = identificar_token(credencial.credentials, request.app.state.chave)
+    except (InvalidTokenError, ValueError):
+        raise erro from None
+    usuario = UsuarioRepository(session).buscar(usuario_id)
+    if usuario is None:
+        raise erro
+    return usuario
+
+
+def administrador(usuario=Depends(usuario_atual)):
+    if usuario.perfil != "administrador":
+        raise HTTPException(403, "Permissão de administrador necessária.")
+    return usuario

@@ -22,7 +22,7 @@ db = criar_engine(f"sqlite:///{DATABASE_PATH.as_posix()}")
 Session = sessionmaker(bind=db, expire_on_commit=False)
 
 def criar_tabelas(engine):
-    from app.models import evento_model, participante_model, inscricao_model
+    from app.models import evento_model, participante_model, inscricao_model, usuario_model
     Base.metadata.create_all(engine)
 
 def get_db(request: Request):
